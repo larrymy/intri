@@ -1,4 +1,5 @@
 library(httr)
+library(ymd)
 #daily all stocks
 # https://api.intrinio.com/prices/exchange.csv?identifier=^XKLS&price_date=2017-09-21
 
@@ -8,6 +9,22 @@ library(httr)
 # https://d82a8b255816b922a436ab6ffb177ec3:92ad8da92b80534003d9f134ec1f82a5@api.intrinio.com/prices.csv?identifier=WLW:MK
 
 # download.file("https://d82a8b255816b922a436ab6ffb177ec3:92ad8da92b80534003d9f134ec1f82a5@api.intrinio.com/prices.csv?identifier=WLW:MK", destfile = "test.csv")
+
+#https://api.intrinio.com/securities?exch_symbol=
+url_csv <- function(){
+      price_base_1 <- "https://" 
+      price_base_2 <- "@api.intrinio.com/securities.csv?exch_symbol=^XKLS"
+      username <- "d82a8b255816b922a436ab6ffb177ec3"
+      password <- "92ad8da92b80534003d9f134ec1f82a5"
+      
+      price <- paste(price_base_1, username, ":", password, price_base_2,sep="")
+      
+      date_char <- gsub(pattern = "-", replacement = "", x = Sys.Date())
+      fname <- paste0("./xkls_list_of_securities/", date_char, "_xkls.csv")
+      download.file(url = price, destfile = fname)
+      
+      return(fname)
+}
 
 prices <- function(ticker){
       price_base <- "https://api.intrinio.com/prices?identifier="
@@ -25,7 +42,7 @@ prices <- function(ticker){
       return(b)
 }
 
-prices_csv <- function(ticker){
+prices_csv <- function(ticker, name){
       price_base_1 <- "https://" 
       price_base_2 <- "@api.intrinio.com/prices.csv?identifier="
       username <- "d82a8b255816b922a436ab6ffb177ec3"
@@ -33,7 +50,7 @@ prices_csv <- function(ticker){
       
       price <- paste(price_base_1, username, ":", password, price_base_2, ticker,sep="")
       
-      fname <- paste0(strsplit(ticker, ":")[[1]][1], ".csv")
+      fname <- paste0(name, "_", strsplit(ticker, ":")[[1]][1], ".csv")
       download.file(url = price, destfile = fname)
       # b <- read.csv(price, stringsAsFactors = F)
       # tp <- GET(price, authenticate(username, password, type = "basic"))
@@ -52,16 +69,26 @@ prices_csv <- function(ticker){
 
 # mass import
 setwd("C:/Users/jy/Desktop/intrinio")
-all_securities <- read.csv("securities_xkls.csv", stringsAsFactors = F, skip = 1)
-u1 <- all_securities[, "SECURITY_TYPE"] == "Common Stock"
-all_ticker <- all_securities[u1, "FIGI_TICKER"]
 
-setwd("C:/Users/jy/Desktop/all_stock")
-N <- length(all_ticker)
-for(i in all_ticker){
-      prices_csv(i)
+#get all securities
+filename <- url_csv() #export list of xkls securities, and return the <filename.csv>
+all_securities <- read.csv(file=filename, stringsAsFactors = F, skip = 1)
+# all_securities <- read.csv("securities_xkls.csv", stringsAsFactors = F, skip = 1)
+u1 <- all_securities[, "SECURITY_TYPE"] == "Common Stock"
+all_figi_ticker <- all_securities[u1, "FIGI_TICKER"]
+all_ticker <- all_securities[u1, "TICKER"]
+
+setwd("C:/Users/jy/Desktop/intrinio/data")
+date_char <- gsub(pattern = "-", replacement = "", x = Sys.Date())
+dir.create(date_char)
+setwd(paste0("C:/Users/jy/Desktop/intrinio/data/", date_char))
+
+N <- length(all_ticker); print(N);
+for(i in 1:3){
+      prices_csv(all_figi_ticker[i], all_ticker[i])
 }
 
+print("Done")
 
 
 # a <- grep(z, pattern = "OPEN")
