@@ -20,6 +20,9 @@ url_csv <- function(){
       price <- paste(price_base_1, username, ":", password, price_base_2,sep="")
       
       date_char <- gsub(pattern = "-", replacement = "", x = Sys.Date())
+      if(!dir.exists("xkls_list_of_securities")){
+        dir.create("xkls_list_of_securities")
+      }
       fname <- paste0("./xkls_list_of_securities/", date_char, "_xkls.csv")
       download.file(url = price, destfile = fname)
       
@@ -68,7 +71,7 @@ prices_csv <- function(ticker, name){
 # prices_csv("PENT:MK")
 
 # mass import
-setwd("C:/Users/jy/Desktop/intrinio")
+setwd("C:/Users/jy/Desktop/intri")
 
 #get all securities
 filename <- url_csv() #export list of xkls securities, and return the <filename.csv>
@@ -78,13 +81,14 @@ u1 <- all_securities[, "SECURITY_TYPE"] == "Common Stock"
 all_figi_ticker <- all_securities[u1, "FIGI_TICKER"]
 all_ticker <- all_securities[u1, "TICKER"]
 
-setwd("C:/Users/jy/Desktop/intrinio/data")
+if(!dir.exists("data")){dir.create("data")}
+setwd("C:/Users/jy/Desktop/intri/data")
 date_char <- gsub(pattern = "-", replacement = "", x = Sys.Date())
 dir.create(date_char)
-setwd(paste0("C:/Users/jy/Desktop/intrinio/data/", date_char))
+setwd(paste0("C:/Users/jy/Desktop/intri/data/", date_char))
 
 N <- length(all_ticker); print(N);
-for(i in 1:3){
+for(i in 1:N){
       prices_csv(all_figi_ticker[i], all_ticker[i])
 }
 
