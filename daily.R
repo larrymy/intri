@@ -9,12 +9,13 @@ daily_csv <- function(today_date = "2017-10-23"){
   
   price <- paste(price_base_1, username, ":", password, price_base_2, today_date, sep="")
   
-  
-  if(!dir.exists("daily_exchange_data")){
-    dir.create("daily_exchange_data")
+  datepart <- gsub(pattern = "-", replacement = "", x = as.character(Sys.Date()))
+  dirname <- paste0("daily_exchange_data_", datepart)
+  if(!dir.exists(  dirname  )){
+    dir.create(dirname)
   }
   date_char <- gsub(pattern = "-", replacement = "", x = today_date)
-  fname <- paste0("./daily_exchange_data/", date_char, "_daily_xkls.csv")
+  fname <- paste0("./", dirname, "/", date_char, "_daily_xkls.csv")
   download.file(url = price, destfile = fname)
   
   df_temp <- read.csv(fname, skip = 1, header = T)
@@ -44,6 +45,6 @@ loop_daily_csv <- function(start_date = Sys.Date(), loop = 10){
 
 setwd("C:/Users/jy/Desktop/intri")
 
-loop_daily_csv(loop = 100)
+loop_daily_csv(loop = 1000)
 
 # daily_csv("2017-10-23")
