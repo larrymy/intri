@@ -45,6 +45,6 @@ loop_daily_csv <- function(start_date = Sys.Date(), loop = 10){
 
 setwd("C:/Users/jy/Desktop/intri")
 
-loop_daily_csv(loop = 1000)
+loop_daily_csv(loop = 5000)
 
 # daily_csv("2017-10-23")
